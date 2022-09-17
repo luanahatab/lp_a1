@@ -46,4 +46,16 @@ for url in albuns:
             duration = 60*int(duration[0]) + int(duration[2:3])
         except ValueError:
             duration = 60*int(duration[0]) + int(duration[2]) 
-        print(duration)
+
+    #criar a variavel exibicoes referente ao numero de exibições da música
+        exibicoes_str = soup.find(class_="cnt-info_exib").text
+        exibicoes = ""
+        for i in exibicoes_str:
+            try:
+                int(i)
+            except ValueError:
+                continue
+            else:
+                exibicoes += i
+        exibicoes = int(exibicoes) 
+        print(exibicoes)
