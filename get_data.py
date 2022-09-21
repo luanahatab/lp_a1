@@ -12,6 +12,7 @@ for url in albuns:
         song_url = "https://www.letras.mus.br" + song["href"]
         req = requests.get(song_url)
         soup = BeautifulSoup(req.content, 'html.parser')
+        letra=[]
 
     #criar a lista das letras, cujos elementos são as estrofes
         for estrofe in list(soup.find(class_="cnt-letra p402_premium").find("p"))[1:]:
@@ -21,7 +22,7 @@ for url in albuns:
                 if str(verso) != '<br/>':
                     primeira_estrofe.append(verso)
 
-            letra = [primeira_estrofe]
+            letra.append(primeira_estrofe)
 
         for estrofe in soup.find(class_="cnt-letra p402_premium").find_all("p")[1:]:
         #adicionar as estrofes restantes
@@ -30,22 +31,20 @@ for url in albuns:
                 if verso.text != "":
                     versos.append(verso.text)
             letra.append(versos)
-
+        
     #criar a variavel duration da duração das músicas
-        scripts = list(soup.find(id="js-scripts"))[1].text
-        elementos = 0
-        for i in range(len(scripts)):
-            if scripts[i] == ":":
-                elementos +=1
-            if elementos == 9:
-                duration = scripts[i+17:i+22]
-                break
-
+        scripts = str(soup.find(id="js-scripts"))
+        elemento = scripts.find("Duration")
+        duration = scripts[elemento+13:elemento+18]
+    
         #converter para segundos
         try:
-            duration = 60*int(duration[0]) + int(duration[2:3])
+            duration = 60*int(duration[0]) + 10*int(duration[2]) + int(duration[3])
         except ValueError:
-            duration = 60*int(duration[0]) + int(duration[2]) 
+            try: 
+                duration = 60*int(duration[0]) + int(duration[2])
+            except ValueError:
+                duration = 10*int(duration[-2]) + int(duration[-1])
 
     #criar a variavel exibicoes referente ao numero de exibições da música
         exibicoes_str = soup.find(class_="cnt-info_exib").text
