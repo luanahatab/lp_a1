@@ -7,6 +7,14 @@ for url in albuns:
     req_al = requests.get(url)
     soup_al = BeautifulSoup(req_al.content, 'html.parser')
 
+    #cria as variaveis do nome do album e das músicas (album e songs)
+    album = soup_al.find(class_="header-name").text
+    songs = []
+    musicas = soup_al.find_all(class_="song-name")
+    for musica in musicas[1:]:
+        songs.append(musica.text)
+    print(songs)
+
     for song in soup_al.find_all(class_="bt-play-song", href=True):
         #atribui a song_url o url de cada musica, a ser usado depois para obter os dados
         song_url = "https://www.letras.mus.br" + song["href"]
@@ -57,4 +65,3 @@ for url in albuns:
             else:
                 exibicoes += i
         exibicoes = int(exibicoes) 
-        print(exibicoes)
