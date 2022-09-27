@@ -1,8 +1,8 @@
-import json
 import requests
 from bs4 import BeautifulSoup
+import csv
 
-albuns = ["https://www.letras.mus.br/charlie-brown-jr/discografia/transpiracao-continua-prolongada-1997/",
+albuns_url = ["https://www.letras.mus.br/charlie-brown-jr/discografia/transpiracao-continua-prolongada-1997/",
 "https://www.letras.mus.br/charlie-brown-jr/discografia/preco-curto-prazo-longo-1999/",
 "https://www.letras.mus.br/charlie-brown-jr/discografia/nadando-com-os-tubaroes-2000/",
 "https://www.letras.mus.br/charlie-brown-jr/discografia/100-charlie-brown-jr-2001/",
@@ -13,53 +13,71 @@ albuns = ["https://www.letras.mus.br/charlie-brown-jr/discografia/transpiracao-c
 "https://www.letras.mus.br/charlie-brown-jr/discografia/camisa-10-joga-bola-ate-na-chuva-2009/",
 "https://www.letras.mus.br/charlie-brown-jr/discografia/la-familia-013-2013/"]
 
-for url in albuns:
+# cria csv para receber índices
+index = open('index.csv', 'w')
+writer_index = csv.writer(index)
+header_index = ['álbum', 'música']
+writer_index.writerow(header_index)
+
+# cria csv para receber dados
+data = open('data.csv', 'w')
+writer_data = csv.writer(data)
+header_data = ['letra', 'duração', 'exibições']
+writer_data.writerow(header_data)
+
+for url in albuns_url:
     req_al = requests.get(url)
     soup_al = BeautifulSoup(req_al.content, 'html.parser')
 
-    #cria as variaveis do nome do album e das músicas (album e songs)
+    # cria as variáveis album e songs referentes ao nome do álbum e nome das músicas
     album = soup_al.find(class_="header-name").text
     songs = []
     musicas = soup_al.find_all(class_="song-name")
     for musica in musicas[1:]:
         songs.append(musica.text)
-    print(songs)
+
+    # adiciona índices ao csv index
+    for song in songs:
+        row_index = []
+        row_index.append(album)
+        row_index.append(song)
+        writer_index.writerow(row_index)
 
     for song in soup_al.find_all(class_="bt-play-song", href=True):
-        #atribui a song_url o url de cada musica, a ser usado depois para obter os dados
+        # atribui a song_url o url de cada música, para mais tarde acessar os dados de cada música
         song_url = "https://www.letras.mus.br" + song["href"]
         req = requests.get(song_url)
         soup = BeautifulSoup(req.content, 'html.parser')
+        
+        # cria a lista das letras, cujos elementos são as estrofes
         letra=[]
-
-    #criar a lista das letras, cujos elementos são as estrofes
         try:
             for estrofe in list(soup.find(class_="cnt-letra p402_premium").find("p"))[1:]:
-            #separar os versos da primeira estrofe
+            # separa os versos da primeira estrofe
                 primeira_estrofe = [list(soup.find(class_="cnt-letra p402_premium").find("p"))[0]]
                 for verso in list(estrofe):
                     if str(verso) != '<br/>':
                         primeira_estrofe.append(verso)
-
                 letra.append(primeira_estrofe)
 
             for estrofe in soup.find(class_="cnt-letra p402_premium").find_all("p")[1:]:
-            #adicionar as estrofes restantes
+            # adiciona as estrofes restantes
                 versos = []
                 for verso in estrofe:
                     if verso.text != "":
                         versos.append(verso.text)
                 letra.append(versos)
-        except AttributeError:
-            letra.append("letra indisponivel")
         
-    #criar a variavel duration da duração das músicas
+        except AttributeError:
+            letra.append("letra indisponível")
+        
+        # cria a variável duration referente a duração das músicas
         scripts = str(soup.find(id="js-scripts"))
         elemento = scripts.find("Duration")
         duration = scripts[elemento+13:elemento+18]
         
         if duration != "scrip":
-        #converter para segundos
+        # converte para segundos
             try:
                 duration = 60*int(duration[0]) + 10*int(duration[2]) + int(duration[3])
             except ValueError:
@@ -69,7 +87,7 @@ for url in albuns:
                     duration = 10*int(duration[-2]) + int(duration[-1])
         
 
-    #criar a variavel exibicoes referente ao numero de exibições da música
+        # cria a variável exibicoes referente ao número de exibições da música
         try:
             exibicoes_str = soup.find(class_="cnt-info_exib").text
             exibicoes = ""
@@ -83,3 +101,13 @@ for url in albuns:
             exibicoes = int(exibicoes)
         except AttributeError:
             exibicoes = 0
+        
+        # adiciona dados ao csv data
+        row_data = []
+        row_data.append(letra)
+        row_data.append(duration)
+        row_data.append(exibicoes)
+        writer_data.writerow(row_data)
+
+index.close()
+data.close()
