@@ -2,34 +2,22 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 
-albuns_url = ["https://www.letras.mus.br/tim-maia/discografia/tim-maia-1970-1970/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-1971-1971/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-vol-3-1972/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-1973/",
-"https://www.letras.mus.br/tim-maia/discografia/racional-volume-1-1975/",
-"https://www.letras.mus.br/tim-maia/discografia/racional-volume-2-1975/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-1976-1976/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-em-ingles-1978/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-1977/",
-"https://www.letras.mus.br/tim-maia/discografia/disco-club-1978/",
-"https://www.letras.mus.br/tim-maia/discografia/reencontro-1979/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-1980/",
-"https://www.letras.mus.br/tim-maia/discografia/nuvens-1982/",
-"https://www.letras.mus.br/tim-maia/discografia/o-descobridor-dos-7-mares-1983/",
-"https://www.letras.mus.br/tim-maia/discografia/sufocante-1984/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-1985/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-1986/",
-"https://www.letras.mus.br/tim-maia/discografia/somos-america-1987/",
-"https://www.letras.mus.br/tim-maia/discografia/carinhos-1988/",
-"https://www.letras.mus.br/tim-maia/discografia/dance-bem-1990/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-interpreta-classicos-da-bossa-nova-1991/",
-"https://www.letras.mus.br/tim-maia/discografia/voltou-a-clarear-1994/",
-"https://www.letras.mus.br/tim-maia/discografia/nova-era-glacial-1995/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-e-os-cariocas-1998/",
-"https://www.letras.mus.br/tim-maia/discografia/pro-meu-grande-amor-1998/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-what-a-wonderful-world-1998/",
-"https://www.letras.mus.br/tim-maia/discografia/tim-maia-so-voce-para-ouvir-e-dancar-1997/",
-"https://www.letras.mus.br/tim-maia/discografia/sorriso-de-crianca-1998/"]
+albuns_url = ["https://www.letras.mus.br/queen/discografia/queen-1974/",
+"https://www.letras.mus.br/queen/discografia/sheer-heart-attack-1974/",
+"https://www.letras.mus.br/queen/discografia/queen-ii-1975/",
+"https://www.letras.mus.br/queen/discografia/a-night-at-the-opera-1975/",
+"https://www.letras.mus.br/queen/discografia/a-day-at-the-races-1976/",
+"https://www.letras.mus.br/queen/discografia/news-of-the-world-1976/",
+"https://www.letras.mus.br/queen/discografia/jazz-1978/",
+"https://www.letras.mus.br/queen/discografia/flash-gordon-1980/",
+"https://www.letras.mus.br/queen/discografia/the-game-1980/",
+"https://www.letras.mus.br/queen/discografia/hot-space-1982/",
+"https://www.letras.mus.br/queen/discografia/the-works-1984/",
+"https://www.letras.mus.br/queen/discografia/a-kind-of-magic-1986/",
+"https://www.letras.mus.br/queen/discografia/the-miracle-1989/",
+"https://www.letras.mus.br/queen/discografia/innuendo-1991/",
+"https://www.letras.mus.br/queen/discografia/made-in-heaven-1995/",
+"https://www.letras.mus.br/queen/discografia/the-cosmos-rocks-2008/"]
 
 # cria csv para receber índices
 index = open('index.csv', 'w')
@@ -49,10 +37,8 @@ for url in albuns_url:
 
     # cria as variáveis album e songs referentes ao nome do álbum e nome das músicas
     album = soup_al.find(class_="header-name").text
-    songs = []
-    musicas = soup_al.find_all(class_="song-name")
-    for musica in musicas[1:]:
-        songs.append(musica.text)
+    songs = [x.text for x in soup_al.find_all(class_="song-name")[1:]]
+    
 
     # adiciona índices ao csv index
     for song in songs:
@@ -119,7 +105,7 @@ for url in albuns_url:
             exibicoes = int(exibicoes)
         except AttributeError:
             exibicoes = 0
-        
+            
         # adiciona dados ao csv data
         row_data = []
         row_data.append(letra)
