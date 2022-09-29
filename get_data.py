@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
+import pandas as pd
 
 albuns_url = ["https://www.letras.mus.br/queen/discografia/queen-1974/",
 "https://www.letras.mus.br/queen/discografia/sheer-heart-attack-1974/",
@@ -105,7 +106,7 @@ for url in albuns_url:
             exibicoes = int(exibicoes)
         except AttributeError:
             exibicoes = 0
-            
+        
         # adiciona dados ao csv data
         row_data = []
         row_data.append(letra)
@@ -114,4 +115,26 @@ for url in albuns_url:
         writer_data.writerow(row_data)
 
 index.close()
-data.close()
+data.close()    
+
+#Premiações
+prem_al = requests.get('https://en.m.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_Queen')
+soup_prem = BeautifulSoup(prem_al.content, 'html.parser')
+tabelas = soup_prem.find_all(class_="wikitable plainrowheaders")
+awards_aux = []
+awards_musicas = []
+premio_lista = []
+for tabela in tabelas:
+    premios = tabela.find_all("tr")
+    for premio in premios:
+        info = [x.text.strip() for x in premio.find_all("td")]
+        awards_aux.append(info)
+for x in range(0,len(awards_aux)):
+    if len(awards_aux[x])>3:
+        if awards_aux[x][3] == 'Won':
+            awards_musicas.append(awards_aux[x][1])
+            premio_lista.append(awards_aux[x][2])
+    
+ser = pd.Series(data=awards_musicas, index=premio_lista)
+print(ser)
+
