@@ -21,7 +21,7 @@ albuns_url = ["https://www.letras.mus.br/queen/discografia/queen-1974/",
 "https://www.letras.mus.br/queen/discografia/the-cosmos-rocks-2008/"]
 
 # cria csv que receberá dados do dataframe
-df = open('dataframe.csv', 'w')
+df = open('dataframe.csv', 'w', encoding='utf-8-sig')
 writer = csv.writer(df)
 header = ['álbum', 'música', 'letra', 'duração', 'exibições']
 writer.writerow(header)
