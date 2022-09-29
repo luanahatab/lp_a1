@@ -42,27 +42,30 @@ for url in albuns_url:
         # cria variável que receberá nome da música
         song = soup.find(class_="cnt-head_title").find("h1").text
 
-        # cria lista que receberá letras, cujos elementos são as estrofes
-        lyrics=[]
+        # cria lista que receberá letras, cujos elementos são os versos
+        versos=[]
+        lyrics = ""
         try:
             for estrofe in list(soup.find(class_="cnt-letra p402_premium").find("p"))[1:]:
             # separa os versos da primeira estrofe
-                primeira_estrofe = [list(soup.find(class_="cnt-letra p402_premium").find("p"))[0]]
+                primeiro_verso = list(soup.find(class_="cnt-letra p402_premium").find("p"))[0]
+                versos.append(primeiro_verso)
                 for verso in list(estrofe):
                     if str(verso) != '<br/>':
-                        primeira_estrofe.append(verso)
-                lyrics.append(primeira_estrofe)
+                        versos.append(verso)
 
             for estrofe in soup.find(class_="cnt-letra p402_premium").find_all("p")[1:]:
             # adiciona as estrofes restantes
-                versos = []
                 for verso in estrofe:
                     if verso.text != "":
                         versos.append(verso.text)
-                lyrics.append(versos)
+
+            for verso in versos:
+            # transforma todas as strings em uma
+                lyrics += verso + " "
 
         except AttributeError:
-            lyrics.append("Letra Indisponível")
+            lyrics = "Letra Indisponível"
 
         # cria a variável duration referente à duração das músicas
         scripts = str(soup.find(id="js-scripts"))
