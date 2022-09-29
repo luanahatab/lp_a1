@@ -20,42 +20,30 @@ albuns_url = ["https://www.letras.mus.br/queen/discografia/queen-1974/",
 "https://www.letras.mus.br/queen/discografia/made-in-heaven-1995/",
 "https://www.letras.mus.br/queen/discografia/the-cosmos-rocks-2008/"]
 
-# cria csv para receber índices
-index = open('index.csv', 'w')
-writer_index = csv.writer(index)
-header_index = ['álbum', 'música']
-writer_index.writerow(header_index)
-
-# cria csv para receber dados
-data = open('data.csv', 'w')
-writer_data = csv.writer(data)
-header_data = ['letra', 'duração', 'exibições']
-writer_data.writerow(header_data)
+# cria csv que receberá dados do dataframe
+df = open('dataframe.csv', 'w')
+writer = csv.writer(df)
+header = ['álbum', 'música', 'letra', 'duração', 'exibições']
+writer.writerow(header)
 
 for url in albuns_url:
     req_al = requests.get(url)
     soup_al = BeautifulSoup(req_al.content, 'html.parser')
 
-    # cria as variáveis album e songs referentes ao nome do álbum e nome das músicas
+    # cria variável que receberá nome dos álbuns
     album = soup_al.find(class_="header-name").text
-    songs = [x.text for x in soup_al.find_all(class_="song-name")[1:]]
-    
-
-    # adiciona índices ao csv index
-    for song in songs:
-        row_index = []
-        row_index.append(album)
-        row_index.append(song)
-        writer_index.writerow(row_index)
 
     for song in soup_al.find_all(class_="bt-play-song", href=True):
-        # atribui a song_url o url de cada música, para mais tarde acessar os dados de cada música
+        # atribui a song_url o url de cada música, para mais tarde acessar os dados de cada uma delas
         song_url = "https://www.letras.mus.br" + song["href"]
         req = requests.get(song_url)
         soup = BeautifulSoup(req.content, 'html.parser')
         
-        # cria a lista das letras, cujos elementos são as estrofes
-        letra=[]
+        # cria variável que receberá nome da música
+        song = soup.find(class_="cnt-head_title").find("h1").text
+
+        # cria lista que receberá letras, cujos elementos são as estrofes
+        lyrics=[]
         try:
             for estrofe in list(soup.find(class_="cnt-letra p402_premium").find("p"))[1:]:
             # separa os versos da primeira estrofe
@@ -63,7 +51,7 @@ for url in albuns_url:
                 for verso in list(estrofe):
                     if str(verso) != '<br/>':
                         primeira_estrofe.append(verso)
-                letra.append(primeira_estrofe)
+                lyrics.append(primeira_estrofe)
 
             for estrofe in soup.find(class_="cnt-letra p402_premium").find_all("p")[1:]:
             # adiciona as estrofes restantes
@@ -71,26 +59,26 @@ for url in albuns_url:
                 for verso in estrofe:
                     if verso.text != "":
                         versos.append(verso.text)
-                letra.append(versos)
-        
+                lyrics.append(versos)
+
         except AttributeError:
-            letra.append("letra indisponível")
-        
-        # cria a variável duration referente a duração das músicas
+            lyrics.append("Letra Indisponível")
+
+        # cria a variável duration referente à duração das músicas
         scripts = str(soup.find(id="js-scripts"))
         elemento = scripts.find("Duration")
         duration = scripts[elemento+13:elemento+18]
-        
+
         if duration != "scrip":
         # converte para segundos
             try:
                 duration = 60*int(duration[0]) + 10*int(duration[2]) + int(duration[3])
             except ValueError:
-                try: 
+                try:
                     duration = 60*int(duration[0]) + int(duration[2])
                 except ValueError:
                     duration = 10*int(duration[-2]) + int(duration[-1])
-        
+
 
         # cria a variável exibicoes referente ao número de exibições da música
         try:
@@ -106,16 +94,17 @@ for url in albuns_url:
             exibicoes = int(exibicoes)
         except AttributeError:
             exibicoes = 0
-        
-        # adiciona dados ao csv data
-        row_data = []
-        row_data.append(letra)
-        row_data.append(duration)
-        row_data.append(exibicoes)
-        writer_data.writerow(row_data)
 
-index.close()
-data.close()    
+        # adiciona dados ao csv
+        row = []
+        row.append(album)
+        row.append(song)
+        row.append(lyrics)
+        row.append(duration)
+        row.append(exibicoes)
+        writer.writerow(row)
+
+df.close()
 
 #Premiações
 prem_al = requests.get('https://en.m.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_Queen')
@@ -134,7 +123,6 @@ for x in range(0,len(awards_aux)):
         if awards_aux[x][3] == 'Won':
             awards_musicas.append(awards_aux[x][1])
             premio_lista.append(awards_aux[x][2])
-    
-ser = pd.Series(data=awards_musicas, index=premio_lista)
-print(ser)
 
+ser = pd.Series(data=awards_musicas, index=premio_lista)
+#print(ser)
