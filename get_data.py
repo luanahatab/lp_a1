@@ -31,7 +31,7 @@ for url in albuns_url:
     soup_al = BeautifulSoup(req_al.content, 'html.parser')
 
     # cria variável que receberá nome dos álbuns
-    album = soup_al.find(class_="header-name").text
+    album = soup_al.find(class_="header-name").text[1:-1]
 
     for song in soup_al.find_all(class_="bt-play-song", href=True):
         # atribui a song_url o url de cada música, para mais tarde acessar os dados de cada uma delas
@@ -81,6 +81,8 @@ for url in albuns_url:
                     duration = 60*int(duration[0]) + int(duration[2])
                 except ValueError:
                     duration = 10*int(duration[-2]) + int(duration[-1])
+        else:
+            duration = 0
 
 
         # cria a variável exibicoes referente ao número de exibições da música

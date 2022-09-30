@@ -1,27 +1,21 @@
 import pandas as pd
 
-#df = pd.read_csv("dataframe.csv", index_col=[0,1]
-df = pd.read_csv("dataframe.csv")
+df = pd.read_csv("dataframe.csv", index_col=[0,1])
+albuns = df.index.unique(level="álbum")
+musics = df.index.unique(level="música")
 
-# maior e menor número de exibições por álbum
-#print(df.loc[df["exibições"] == df.groupby("álbum")["exibições"].max().to_string(index=False)])
-print(df.groupby("álbum")["exibições"].max())
-print(df.groupby("álbum")["exibições"].min())
+for album in albuns:
+   print(df[df["exibições"]!=0].loc[album].sort_values(by="exibições", ascending=False)["exibições"].head())
+   print(df[df["exibições"]!=0].loc[album].sort_values(by="exibições")["exibições"].head())
+   print(df[df["duração"]!=0].loc[album].sort_values(by="duração", ascending=False)["duração"].head())
+   print(df[df["duração"]!=0].loc[album].sort_values(by="duração")["duração"].head())
 
-# maior e menor duração das músicas por álbum
-print(df.groupby("álbum")["duração"].max())
-print(df.groupby("álbum")["duração"].min())
-
-# maior e menor número de exibições da banda
-print(df["exibições"].max())
-print(df["exibições"].min())
-
-# maior e menor duração das músicas por álbum
-print(df["duração"].max())
-print(df["duração"].min())
+print(df[df["exibições"]!=0].sort_values(by="exibições", ascending=False)["exibições"].head())
+print(df[df["exibições"]!=0].sort_values(by="exibições")["exibições"].head())
+print(df[df["duração"]!=0].sort_values(by="duração", ascending=False)["duração"].head())
+print(df[df["duração"]!=0].sort_values(by="duração")["duração"].head())
 
 # palavras mais comuns no título dos álbuns
-albuns = df["álbum"].unique()
 words_albuns = []
 for album in albuns:
    for word in album.split():
@@ -32,7 +26,6 @@ print(words_albuns.value_counts().head())
 
 
 # palavras mais comuns no título das músicas
-musics = df["música"].unique()
 words_musics = []
 for music in musics:
    for word in music.split():
@@ -42,6 +35,15 @@ words_musics = pd.Series(words_musics)
 print(words_musics.value_counts().head())
 
 # palavras mais comuns na letra das músicas por álbum
+for album in albuns:
+   lyrics = df.loc[album]["letra"].unique()
+   words_lyrics = []
+   for lyric in lyrics:
+      for word in str(lyric).split():
+         words_lyrics.append(word)
+
+   words_lyrics = pd.Series(words_lyrics)
+   print(words_lyrics.value_counts().head())
 
 # palavras mais comuns na letra das músicas de toda a discografia
 lyrics = df["letra"].unique()
