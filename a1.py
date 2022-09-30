@@ -44,6 +44,7 @@ words_musics = pd.Series(words_musics)
 print(words_musics.value_counts().head())
 
 # palavras mais comuns na letra das músicas por álbum
+words_dfs = []
 for album in albuns:
    lyrics = df.loc[album]["letra"].unique()
    words_lyrics = []
@@ -52,7 +53,13 @@ for album in albuns:
          words_lyrics.append(word)
 
    words_lyrics = pd.Series(words_lyrics)
-   print(words_lyrics.value_counts().head())
+   words_freq = words_lyrics.value_counts().head().values
+   words_idx = words_lyrics.value_counts().head().index.to_list()
+   multi_idx = pd.MultiIndex.from_tuples([(album, x) for x in words_idx], names=["album", "word"])
+   words_dfs.append(pd.DataFrame(data=words_freq, index=multi_idx, columns=["freq"]))
+
+word_df = pd.concat(words_dfs)
+print(word_df)
 
 # palavras mais comuns na letra das músicas de toda a discografia
 lyrics = df["letra"].unique()
