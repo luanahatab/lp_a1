@@ -30,8 +30,8 @@ for album in albuns:
    for word in album.split():
       words_albuns.append(word)
 
-words_albuns = pd.Series(words_albuns)
-print(words_albuns.value_counts().head())
+words_albuns_pd = pd.Series(words_albuns)
+print(words_albuns_pd.value_counts().head())
 
 
 # palavras mais comuns no título das músicas
@@ -40,8 +40,8 @@ for music in musics:
    for word in music.split():
       words_musics.append(word)
 
-words_musics = pd.Series(words_musics)
-print(words_musics.value_counts().head())
+words_musics_pd = pd.Series(words_musics)
+print(words_musics_pd.value_counts().head())
 
 # palavras mais comuns na letra das músicas por álbum
 words_dfs = []
@@ -68,5 +68,26 @@ for lyric in lyrics:
    for word in str(lyric).split():
       words_lyrics.append(word)
 
-words_lyrics = pd.Series(words_lyrics)
-print(words_lyrics.value_counts().head())
+words_lyrics_pd = pd.Series(words_lyrics)
+print(words_lyrics_pd.value_counts().head())
+
+# título de álbum é tema recorrente nas letras
+tema_albuns = []
+for word_al in words_albuns:
+   for word_ly in words_lyrics:
+      if word_al == word_ly:
+         tema_albuns.append(word_al)
+
+tema_albuns_pd = pd.Series(tema_albuns)
+print("Tema álbuns:", tema_albuns_pd.value_counts().head(20))
+
+# título de música é tema recorrente nas letras
+# checa frequência, nas letras, das palavras presentes no título das músicas
+tema_musics = []
+for word_mu in words_musics:
+   for word_ly in words_lyrics:
+      if word_mu == word_ly:
+         tema_musics.append(word_mu)
+
+tema_musics_pd = pd.Series(tema_musics)
+print("Tema músicas:", tema_musics_pd.value_counts().head(20))
