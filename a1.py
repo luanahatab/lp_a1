@@ -4,11 +4,20 @@ df = pd.read_csv("dataframe.csv", index_col=[0,1])
 albuns = df.index.unique(level="álbum")
 musics = df.index.unique(level="música")
 
+mais_ouvidas_idx = []
+menos_ouvidas_idx = []
+mais_longas_idx = []
+menos_longas_idx = []
 for album in albuns:
-   print(df[df["exibições"]!=0].loc[album].sort_values(by="exibições", ascending=False)["exibições"].head())
-   print(df[df["exibições"]!=0].loc[album].sort_values(by="exibições")["exibições"].head())
-   print(df[df["duração"]!=0].loc[album].sort_values(by="duração", ascending=False)["duração"].head())
-   print(df[df["duração"]!=0].loc[album].sort_values(by="duração")["duração"].head())
+   mais_ouvidas_idx += df[df["exibições"]!=0].loc[album].sort_values(by="exibições", ascending=False)["exibições"].head().index.tolist()
+   menos_ouvidas_idx += df[df["exibições"]!=0].loc[album].sort_values(by="exibições")["exibições"].head().index.tolist()
+   mais_longas_idx += df[df["duração"]!=0].loc[album].sort_values(by="duração", ascending=False)["duração"].head().index.tolist()
+   menos_longas_idx += df[df["duração"]!=0].loc[album].sort_values(by="duração").head().index.tolist()
+
+print(df[df.index.isin(mais_ouvidas_idx, level="música")])
+print(df[df.index.isin(menos_ouvidas_idx, level="música")])
+print(df[df.index.isin(mais_longas_idx, level="música")])
+print(df[df.index.isin(menos_longas_idx, level="música")])
 
 print(df[df["exibições"]!=0].sort_values(by="exibições", ascending=False)["exibições"].head())
 print(df[df["exibições"]!=0].sort_values(by="exibições")["exibições"].head())
