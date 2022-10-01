@@ -1,4 +1,7 @@
+import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("dataframe.csv", index_col=[0,1])
 albuns = df.index.unique(level="álbum")
@@ -23,6 +26,11 @@ print(df[df["exibições"]!=0].sort_values(by="exibições", ascending=False)["e
 print(df[df["exibições"]!=0].sort_values(by="exibições")["exibições"].head())
 print(df[df["duração"]!=0].sort_values(by="duração", ascending=False)["duração"].head())
 print(df[df["duração"]!=0].sort_values(by="duração")["duração"].head())
+
+print(df.groupby("álbum").sum().sort_values(by="prêmios", ascending=False).head())
+
+popularidade = sns.jointplot(data=df[df["duração"]>0], x="duração", y="exibições", kind="reg")
+popularidade.figure.savefig("popularidade.png")
 
 # palavras mais comuns no título dos álbuns
 words_albuns = []

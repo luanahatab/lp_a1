@@ -1,7 +1,18 @@
-import requests
 from bs4 import BeautifulSoup
+import requests
 import csv
-import pandas as pd
+
+# cria a lista awards das premiações
+awards = []
+req_prem = requests.get('https://en.m.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_Queen')
+soup_prem = BeautifulSoup(req_prem.content, 'html.parser')
+tabelas = soup_prem.find_all(class_="wikitable plainrowheaders")
+for tabela in tabelas:
+    premios = tabela.find_all("tr")
+    for premio in premios:
+        info = [x.text.strip() for x in premio.find_all("td")]
+        if len(info)>3:
+            awards.append(info)
 
 albuns_url = ["https://www.letras.mus.br/queen/discografia/queen-1974/",
 "https://www.letras.mus.br/queen/discografia/sheer-heart-attack-1974/",
@@ -23,7 +34,7 @@ albuns_url = ["https://www.letras.mus.br/queen/discografia/queen-1974/",
 # cria csv que receberá dados do dataframe
 df = open('dataframe.csv', 'w', encoding='utf-8-sig')
 writer = csv.writer(df)
-header = ['álbum', 'música', 'letra', 'duração', 'exibições']
+header = ['álbum', 'música', 'letra', 'duração', 'exibições', 'prêmios']
 writer.writerow(header)
 
 for url in albuns_url:
@@ -34,7 +45,7 @@ for url in albuns_url:
     album = soup_al.find(class_="header-name").text[1:-1]
 
     for song in soup_al.find_all(class_="bt-play-song", href=True):
-        # atribui a song_url o url de cada música, para mais tarde acessar os dados de cada uma delas
+        # atribui a song_url o url de cada música para acessar os dados de cada uma delas
         song_url = "https://www.letras.mus.br" + song["href"]
         req = requests.get(song_url)
         soup = BeautifulSoup(req.content, 'html.parser')
@@ -100,6 +111,12 @@ for url in albuns_url:
         except AttributeError:
             exibicoes = 0
 
+        # atribui a premios o número de premiações da música
+        premios = 0
+        for award in awards:
+            if song.lower() in award[1].lower():
+                premios += 1
+        
         # adiciona dados ao csv
         row = []
         row.append(album)
@@ -107,27 +124,7 @@ for url in albuns_url:
         row.append(lyrics)
         row.append(duration)
         row.append(exibicoes)
+        row.append(premios)
         writer.writerow(row)
 
 df.close()
-
-#Premiações
-prem_al = requests.get('https://en.m.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_Queen')
-soup_prem = BeautifulSoup(prem_al.content, 'html.parser')
-tabelas = soup_prem.find_all(class_="wikitable plainrowheaders")
-awards_aux = []
-awards_musicas = []
-premio_lista = []
-for tabela in tabelas:
-    premios = tabela.find_all("tr")
-    for premio in premios:
-        info = [x.text.strip() for x in premio.find_all("td")]
-        awards_aux.append(info)
-for x in range(0,len(awards_aux)):
-    if len(awards_aux[x])>3:
-        if awards_aux[x][3] == 'Won':
-            awards_musicas.append(awards_aux[x][1])
-            premio_lista.append(awards_aux[x][2])
-
-ser = pd.Series(data=awards_musicas, index=premio_lista)
-#print(ser)
