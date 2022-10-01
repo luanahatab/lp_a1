@@ -34,7 +34,7 @@ albuns_url = ["https://www.letras.mus.br/queen/discografia/queen-1974/",
 # cria csv que receberá dados do dataframe
 df = open('dataframe.csv', 'w', encoding='utf-8-sig')
 writer = csv.writer(df)
-header = ['álbum', 'música', 'letra', 'duração', 'exibições', 'prêmios']
+header = ['álbum', 'música', 'letra', 'duração', 'exibições', 'prêmios', 'indicações']
 writer.writerow(header)
 
 for url in albuns_url:
@@ -111,11 +111,14 @@ for url in albuns_url:
         except AttributeError:
             exibicoes = 0
 
-        # atribui a premios o número de premiações da música
+        # atribui o número de prêmios e indicações da música
         premios = 0
+        indicacoes = 0
         for award in awards:
             if song.lower() in award[1].lower():
-                premios += 1
+                indicacoes += 1
+                if award[3] == "Won":
+                    premios += 1
         
         # adiciona dados ao csv
         row = []
@@ -125,6 +128,7 @@ for url in albuns_url:
         row.append(duration)
         row.append(exibicoes)
         row.append(premios)
+        row.append(indicacoes)
         writer.writerow(row)
 
 df.close()

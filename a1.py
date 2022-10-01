@@ -27,7 +27,7 @@ print(df[df["exibições"]!=0].sort_values(by="exibições")["exibições"].head
 print(df[df["duração"]!=0].sort_values(by="duração", ascending=False)["duração"].head())
 print(df[df["duração"]!=0].sort_values(by="duração")["duração"].head())
 
-print(df.groupby("álbum").sum().sort_values(by="prêmios", ascending=False).head())
+print(df.groupby("álbum").sum().sort_values(by=["prêmios", "indicações"], ascending=[False, False]).head())
 
 popularidade = sns.jointplot(data=df[df["duração"]>0], x="duração", y="exibições", kind="reg")
 popularidade.figure.savefig("popularidade.png")
