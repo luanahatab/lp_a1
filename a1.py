@@ -99,3 +99,25 @@ for word_mu in words_musics:
 
 tema_musics_pd = pd.Series(tema_musics)
 print("Tema músicas:", tema_musics_pd.value_counts().head(20))
+
+#Perguntas criadas:
+
+# I) Qual é a quantidade média de palavras por música? 
+palavras_musica = []
+for i in range(0,len(lyrics)):
+   try:
+      qnt_palavras = len(lyrics[i].split())
+      if qnt_palavras !=2:
+         palavras_musica.append(qnt_palavras)
+      else:
+         palavras_musica.append(0)
+   except Exception:
+      palavras_musica.append(0)
+
+soma_palavras = sum(palavras_musica)
+media_palavras = soma_palavras/len(musics)
+
+print(f'A média de palavras por música é: {media_palavras:.2f}')
+
+
+
