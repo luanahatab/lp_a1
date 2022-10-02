@@ -119,5 +119,22 @@ media_palavras = soma_palavras/len(musics)
 
 print(f'A média de palavras por música é: {media_palavras:.2f}')
 
+#II) Quais são os álbuns com maior e menor média de duração das músicas?
+
+duracao_list=[]
+for album in albuns:
+   duracao = df.loc[album]['duração'].unique()
+   duracao_list.append(duracao)
+
+media_duracao = []
+for i in range(0,len(duracao_list)):
+   media = round((sum(duracao_list[i]))/(len(duracao_list[i])),2)
+   media_duracao.append(media)
+
+duracao_musicas_ser = pd.Series(data=albuns, index=media_duracao)
+
+max_duracao = max(media_duracao)
+min_duracao = min(media_duracao)
+print(f'O álbum com maior média de duração é {duracao_musicas_ser[max_duracao]} e o com a menor média de duração é {duracao_musicas_ser[min_duracao]}')
 
 
