@@ -21,14 +21,14 @@ for album in albuns:
    menos_ouvidas = df[df["exibições"]!=0].loc[album].sort_values(by="exibições").head()
    mais_e_menos_ouvidas = pd.concat([mais_ouvidas, menos_ouvidas], keys=["mais", "menos"])
    grafico1 = sns.barplot(data=mais_e_menos_ouvidas.reset_index(), x="level_0", y="exibições", hue="música")
-   grafico1.figure.savefig(f"./resposta1{album}.png")
+   grafico1.figure.savefig(f"./img/Grupo1/Resposta_i/{album}.png")
    grafico1.get_figure().clf()
 
    mais_exib = df[df["duração"]!=0].loc[album].sort_values(by="duração", ascending=False).head()
    menos_exib = df[df["duração"]!=0].loc[album].sort_values(by="duração").head()
    mais_e_menos_exib = pd.concat([mais_ouvidas, menos_ouvidas], keys=["mais", "menos"])
    grafico2 = sns.barplot(data=mais_e_menos_ouvidas.reset_index(), x="level_0", y="exibições", hue="música")
-   grafico2.figure.savefig(f"./resposta2{album}.png")
+   grafico2.figure.savefig(f"./img/Grupo1/Resposta_ii/{album}.png")
    grafico2.get_figure().clf()
 
 print(df[df.index.isin(mais_ouvidas_idx, level="música")])
@@ -44,7 +44,7 @@ print(df[df["duração"]!=0].sort_values(by="duração")["duração"].head())
 print(df.groupby("álbum").sum().sort_values(by=["prêmios", "indicações"], ascending=[False, False]).head())
 
 popularidade = sns.jointplot(data=df[df["duração"]>0], x="duração", y="exibições", kind="reg")
-popularidade.figure.savefig("popularidade.png")
+popularidade.figure.savefig("./img/Grupo1/Resposta_vi/popularidade.png")
 
 # palavras mais comuns no título dos álbuns
 words_albuns = []
@@ -68,7 +68,7 @@ print(words_musics_pd.value_counts().head())
 # palavras mais comuns na letra das músicas por álbum
 words_dfs = []
 for album in albuns:
-   lyrics = df.loc[album]["letra"].unique()
+   lyrics = df[(df["letra"]!="") & (df["letra"] != "Letra Indisponível")].drop_duplicates()["letra"]
    words_lyrics = []
    for lyric in lyrics:
       for word in str(lyric).split():
@@ -121,10 +121,7 @@ palavras_musica = []
 for i in range(0,len(lyrics)):
    try:
       qnt_palavras = len(lyrics[i].split())
-      if qnt_palavras !=2:
-         palavras_musica.append(qnt_palavras)
-      else:
-         palavras_musica.append(0)
+      palavras_musica.append(qnt_palavras)
    except Exception:
       palavras_musica.append(0)
 
@@ -135,19 +132,13 @@ print(f'A média de palavras por música é: {media_palavras:.2f}')
 
 #II) Quais são os álbuns com maior e menor média de duração das músicas?
 
-duracao_list=[]
-for album in albuns:
-   duracao = df.loc[album]['duração'].unique()
-   duracao_list.append(duracao)
+print(df[df["duração"]>0].groupby("álbum").mean().sort_values(by="duração")["duração"])
 
-media_duracao = []
-for i in range(0,len(duracao_list)):
-   media = round((sum(duracao_list[i]))/(len(duracao_list[i])),2)
-   media_duracao.append(media)
+#III)
+# duracao_list=[]
+# for album in albuns:
+#    duracao = df.loc[album]['duração'].unique()
+#    duracao_list.append(duracao)
 
-duracao_musicas_ser = pd.Series(data=albuns, index=media_duracao)
 
-max_duracao = max(media_duracao)
-min_duracao = min(media_duracao)
-print(f'O álbum com maior média de duração é {duracao_musicas_ser[max_duracao]} e o com a menor média de duração é {duracao_musicas_ser[min_duracao]}')
-
+#quando for comparar usar aql df do lyrics e head
