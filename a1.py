@@ -16,6 +16,20 @@ for album in albuns:
    menos_ouvidas_idx += df[df["exibições"]!=0].loc[album].sort_values(by="exibições")["exibições"].head().index.tolist()
    mais_longas_idx += df[df["duração"]!=0].loc[album].sort_values(by="duração", ascending=False)["duração"].head().index.tolist()
    menos_longas_idx += df[df["duração"]!=0].loc[album].sort_values(by="duração").head().index.tolist()
+   
+   mais_ouvidas = df[df["exibições"]!=0].loc[album].sort_values(by="exibições", ascending=False).head()
+   menos_ouvidas = df[df["exibições"]!=0].loc[album].sort_values(by="exibições").head()
+   mais_e_menos_ouvidas = pd.concat([mais_ouvidas, menos_ouvidas], keys=["mais", "menos"])
+   grafico1 = sns.barplot(data=mais_e_menos_ouvidas.reset_index(), x="level_0", y="exibições", hue="música")
+   grafico1.figure.savefig(f"./resposta1{album}.png")
+   grafico1.get_figure().clf()
+
+   mais_exib = df[df["duração"]!=0].loc[album].sort_values(by="duração", ascending=False).head()
+   menos_exib = df[df["duração"]!=0].loc[album].sort_values(by="duração").head()
+   mais_e_menos_exib = pd.concat([mais_ouvidas, menos_ouvidas], keys=["mais", "menos"])
+   grafico2 = sns.barplot(data=mais_e_menos_ouvidas.reset_index(), x="level_0", y="exibições", hue="música")
+   grafico2.figure.savefig(f"./resposta2{album}.png")
+   grafico2.get_figure().clf()
 
 print(df[df.index.isin(mais_ouvidas_idx, level="música")])
 print(df[df.index.isin(menos_ouvidas_idx, level="música")])
@@ -136,5 +150,4 @@ duracao_musicas_ser = pd.Series(data=albuns, index=media_duracao)
 max_duracao = max(media_duracao)
 min_duracao = min(media_duracao)
 print(f'O álbum com maior média de duração é {duracao_musicas_ser[max_duracao]} e o com a menor média de duração é {duracao_musicas_ser[min_duracao]}')
-
 
