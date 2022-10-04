@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import nltk
 from nltk import pos_tag, word_tokenize
 nltk.download('averaged_perceptron_tagger')
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
 df = pd.read_csv("dataframe.csv", index_col=[0,1])
 albuns = df.index.unique(level="álbum")
@@ -76,6 +77,13 @@ for album in albuns:
 words_albuns_pd = pd.Series(words_albuns)
 print(words_albuns_pd.value_counts().head())
 
+all_album_titles = " ".join(t for t in words_albuns_pd)
+wordcloud = WordCloud().generate(all_album_titles)
+plt.figure()
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis("off")
+plt.show()
+plt.savefig("img/Grupo 3/worldcloud_album_titles.png")
 
 # palavras mais comuns no título das músicas
 words_musics = []
@@ -86,10 +94,18 @@ for music in musics:
 words_musics_pd = pd.Series(words_musics)
 print(words_musics_pd.value_counts().head())
 
+all_music_titles = " ".join(t for t in words_musics_pd)
+wordcloud = WordCloud().generate(all_music_titles)
+plt.figure()
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis("off")
+plt.show()
+plt.savefig("img/Grupo 3/worldcloud_music_titles.png")
+
 # palavras mais comuns na letra das músicas por álbum
 words_dfs = []
 for album in albuns:
-   lyrics = df[(df["letra"]!="") & (df["letra"] != "Letra Indisponível")].drop_duplicates()["letra"]
+   lyrics = df.loc[album]["letra"].unique()
    words_lyrics = []
    for lyric in lyrics:
       for word in str(lyric).split():
@@ -114,6 +130,14 @@ for lyric in lyrics:
 words_lyrics_pd = pd.Series(words_lyrics)
 print(words_lyrics_pd.value_counts().head())
 
+all_lyrics = " ".join(l for l in words_lyrics_pd)
+wordcloud = WordCloud().generate(all_lyrics)
+plt.figure()
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis("off")
+plt.show()
+plt.savefig("img/Grupo 3/worldcloud_lyrics.png")
+
 # título de álbum é tema recorrente nas letras
 tema_albuns = []
 nouns = []
@@ -129,7 +153,7 @@ for noum in nouns:
          tema_albuns.append(noum)
 
 tema_albuns_pd = pd.Series(tema_albuns)
-print("Tema álbuns:", tema_albuns_pd.value_counts().head(20))
+print("Tema álbuns:", tema_albuns_pd.value_counts().head())
 
 # título de música é tema recorrente nas letras
 # checa frequência, nas letras, das palavras presentes no título das músicas
@@ -147,7 +171,7 @@ for noum in nouns:
          tema_albuns.append(noum)
 
 tema_albuns_pd = pd.Series(tema_albuns)
-print("Tema álbuns:", tema_albuns_pd.value_counts().head(20))
+print("Tema álbuns:", tema_albuns_pd.value_counts().head())
 
 #Perguntas criadas:
 
