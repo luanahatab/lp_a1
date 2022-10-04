@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import nltk
+from nltk import pos_tag, word_tokenize
+nltk.download('averaged_perceptron_tagger')
 
 df = pd.read_csv("dataframe.csv", index_col=[0,1])
 albuns = df.index.unique(level="álbum")
@@ -95,10 +98,17 @@ print(words_lyrics_pd.value_counts().head())
 
 # título de álbum é tema recorrente nas letras
 tema_albuns = []
-for word_al in words_albuns:
+nouns = []
+for album in albuns:
+    words = pos_tag(word_tokenize(str(album)))
+    for word,pos in words:
+        if pos.startswith('NN'):
+             nouns.append(word)
+
+for noum in nouns:
    for word_ly in words_lyrics:
-      if word_al == word_ly:
-         tema_albuns.append(word_al)
+      if noum == word_ly:
+         tema_albuns.append(noum)
 
 tema_albuns_pd = pd.Series(tema_albuns)
 print("Tema álbuns:", tema_albuns_pd.value_counts().head(20))
@@ -106,13 +116,20 @@ print("Tema álbuns:", tema_albuns_pd.value_counts().head(20))
 # título de música é tema recorrente nas letras
 # checa frequência, nas letras, das palavras presentes no título das músicas
 tema_musics = []
-for word_mu in words_musics:
-   for word_ly in words_lyrics:
-      if word_mu == word_ly:
-         tema_musics.append(word_mu)
+nouns = []
+for music in musics:
+    words = pos_tag(word_tokenize(str(music)))
+    for word,pos in words:
+        if pos.startswith('NN'):
+             nouns.append(word)
 
-tema_musics_pd = pd.Series(tema_musics)
-print("Tema músicas:", tema_musics_pd.value_counts().head(20))
+for noum in nouns:
+   for word_ly in words_lyrics:
+      if noum == word_ly:
+         tema_albuns.append(noum)
+
+tema_albuns_pd = pd.Series(tema_albuns)
+print("Tema álbuns:", tema_albuns_pd.value_counts().head(20))
 
 #Perguntas criadas:
 
