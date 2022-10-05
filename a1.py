@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import nltk
 from nltk import pos_tag, word_tokenize
 nltk.download('averaged_perceptron_tagger')
+nltk.download('punkt')
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
 df = pd.read_csv("dataframe.csv", index_col=[0,1])
@@ -140,23 +141,39 @@ print("Tema álbuns:\n", theme(albuns, lyrics).value_counts().head(), sep="")
 print("Tema músicas:\n", theme(musics, lyrics).value_counts().head(), sep="")
 
 #Perguntas criadas:
-# I) Qual é a quantidade média de palavras por música? 
-palavras_musica = []
-for i in range(0,len(lyrics)):
-   try:
-      qnt_palavras = len(lyrics[i].split())
-      palavras_musica.append(qnt_palavras)
-   except Exception:
-      palavras_musica.append(0)
+# Qual é a quantidade média de palavras por música? 
 
-soma_palavras = sum(palavras_musica)
-media_palavras = soma_palavras/len(musics)
+def media_palavras_musicas(lyrics):
+   """Calcula a média de palavras por música
+   lyrics: lista com as letras das músicas
+   """
+   palavras_musica = []
+   for i in range(0,len(lyrics)):
+      qnt_palavras = len(str(lyrics[i]).split())
+      if qnt_palavras >2:
+         palavras_musica.append(qnt_palavras)
+      else:
+         palavras_musica.append(0)
 
-print(f'A média de palavras por música é: {media_palavras:.2f}')
+   soma_palavras = sum(palavras_musica)
+   if 0 in palavras_musica:
+      media_palavras = soma_palavras/(len(musics)-1)
+   elif 0 not in palavras_musica:
+      media_palavras = soma_palavras/len(musics)
+   
+   return round(media_palavras,2)
 
-#II) Quais são os álbuns com maior e menor média de duração das músicas?
+def duracao_album(df):
+   """Retorna uma série com o nome das músicas e suas durações em ordem decrescente
+   df: dataframe que possui como um dos índices os nomes das músicas e uma de suas colunas é a duração da música
+   """
+   return (df[df["duração"]>0].groupby("álbum").mean().sort_values(by="duração")["duração"])
 
-print(df[df["duração"]>0].groupby("álbum").mean().sort_values(by="duração")["duração"])
+# Qual é a quantidade média de palavras por música? 
+print(f'A média de palavras por música é: {media_palavras_musicas(lyrics)}')
+
+#Quais são os álbuns com maior e menor média de duração das músicas?
+print(type(duracao_album(df)))
 
 #III)
 # duracao_list=[]
