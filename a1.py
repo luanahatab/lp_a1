@@ -68,50 +68,35 @@ grafico.get_figure().clf()
 popularidade = sns.jointplot(data=df[df["duração"]>0], x="duração", y="exibições", kind="reg")
 popularidade.figure.savefig("./img/Grupo1/Resposta_vi/popularidade.png")
 
+def words(series):
+   """
+   :return: série com todas as palavras presentes na série passada como parâmetro
+   """
+   words_series = []
+   for element in series:
+      for word in str(element).split():
+         words_series.append(word)
+   return pd.Series(words_series)
+
+def wordcloud(series, file):
+   string = " ".join(word for word in words(series)) # une todas as palavras em uma única str
+   wordcloud = WordCloud().generate(string)
+   wordcloud.to_file(file)
+
 # palavras mais comuns no título dos álbuns
-words_albuns = []
-for album in albuns:
-   for word in album.split():
-      words_albuns.append(word)
-
-words_albuns_pd = pd.Series(words_albuns)
-print(words_albuns_pd.value_counts().head())
-
-all_album_titles = " ".join(t for t in words_albuns_pd)
-wordcloud = WordCloud().generate(all_album_titles)
-plt.figure()
-plt.imshow(wordcloud, interpolation="bilinear")
-plt.axis("off")
-plt.show()
-plt.savefig("img/Grupo 3/worldcloud_album_titles.png")
+print("Palavras mais comuns - título álbuns:\n", words(albuns).value_counts().head(), sep="")
+wordcloud(albuns, "img/Grupo 3/wordcloud_albuns.png")
 
 # palavras mais comuns no título das músicas
-words_musics = []
-for music in musics:
-   for word in music.split():
-      words_musics.append(word)
-
-words_musics_pd = pd.Series(words_musics)
-print(words_musics_pd.value_counts().head())
-
-all_music_titles = " ".join(t for t in words_musics_pd)
-wordcloud = WordCloud().generate(all_music_titles)
-plt.figure()
-plt.imshow(wordcloud, interpolation="bilinear")
-plt.axis("off")
-plt.show()
-plt.savefig("img/Grupo 3/worldcloud_music_titles.png")
+print("Palavras mais comuns - título músicas:\n", words(musics).value_counts().head(), sep="")
+wordcloud(musics, "img/Grupo 3/wordcloud_musics.png")
 
 # palavras mais comuns na letra das músicas por álbum
 words_dfs = []
 for album in albuns:
    lyrics = df.loc[album]["letra"].unique()
-   words_lyrics = []
-   for lyric in lyrics:
-      for word in str(lyric).split():
-         words_lyrics.append(word)
 
-   words_lyrics = pd.Series(words_lyrics)
+   words_lyrics = words(lyrics)
    words_freq = words_lyrics.value_counts().head().values
    words_idx = words_lyrics.value_counts().head().index.to_list()
    multi_idx = pd.MultiIndex.from_tuples([(album, x) for x in words_idx], names=["album", "word"])
@@ -122,59 +107,39 @@ print(word_df)
 
 # palavras mais comuns na letra das músicas de toda a discografia
 lyrics = df["letra"].unique()
-words_lyrics = []
-for lyric in lyrics:
-   for word in str(lyric).split():
-      words_lyrics.append(word)
+print("Palavras mais comuns - letra músicas:\n", words(lyrics).value_counts().head(), sep="")
+wordcloud(lyrics, "img/Grupo 3/wordcloud_lyrics.png")
 
-words_lyrics_pd = pd.Series(words_lyrics)
-print(words_lyrics_pd.value_counts().head())
+def nouns(series):
+   nouns = []
+   for element in series:
+      words = pos_tag(word_tokenize(str(element)))
+      for word,pos in words:
+         if pos.startswith('NN'):
+               nouns.append(word)
+   return nouns
 
-all_lyrics = " ".join(l for l in words_lyrics_pd)
-wordcloud = WordCloud().generate(all_lyrics)
-plt.figure()
-plt.imshow(wordcloud, interpolation="bilinear")
-plt.axis("off")
-plt.show()
-plt.savefig("img/Grupo 3/worldcloud_lyrics.png")
+def theme(series1, series2):
+   """
+   checa se subst. da série 1 estão na série 2.
+   :series1: thematic series
+   :series2: 
+   """
+   theme = []
+   for noum in nouns(series1):
+      for word in words(series2):
+         if noum == word:
+            theme.append(noum)
+   theme = pd.Series(theme)
+   return theme
 
 # título de álbum é tema recorrente nas letras
-tema_albuns = []
-nouns = []
-for album in albuns:
-    words = pos_tag(word_tokenize(str(album)))
-    for word,pos in words:
-        if pos.startswith('NN'):
-             nouns.append(word)
-
-for noum in nouns:
-   for word_ly in words_lyrics:
-      if noum == word_ly:
-         tema_albuns.append(noum)
-
-tema_albuns_pd = pd.Series(tema_albuns)
-print("Tema álbuns:", tema_albuns_pd.value_counts().head())
+print("Tema álbuns:\n", theme(albuns, lyrics).value_counts().head(), sep="")
 
 # título de música é tema recorrente nas letras
-# checa frequência, nas letras, das palavras presentes no título das músicas
-tema_musics = []
-nouns = []
-for music in musics:
-    words = pos_tag(word_tokenize(str(music)))
-    for word,pos in words:
-        if pos.startswith('NN'):
-             nouns.append(word)
-
-for noum in nouns:
-   for word_ly in words_lyrics:
-      if noum == word_ly:
-         tema_albuns.append(noum)
-
-tema_albuns_pd = pd.Series(tema_albuns)
-print("Tema álbuns:", tema_albuns_pd.value_counts().head())
+print("Tema músicas:\n", theme(musics, lyrics).value_counts().head(), sep="")
 
 #Perguntas criadas:
-
 # I) Qual é a quantidade média de palavras por música? 
 palavras_musica = []
 for i in range(0,len(lyrics)):
