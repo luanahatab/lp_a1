@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -11,7 +10,6 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 df = pd.read_csv("dataframe.csv", index_col=[0,1])
 albuns = df.index.unique(level="álbum")
 musics = df.index.unique(level="música")
-
 
 def maiores_menores_idx(df, indice_idx, grupo_idx, coluna, path, opcao):
    """
@@ -76,10 +74,11 @@ grafico.get_figure().clf()
 popularidade = sns.jointplot(data=df[df["duração"]>0], x="duração", y="exibições", kind="reg")
 popularidade.figure.savefig("./img/Grupo1/Resposta_vi/popularidade.png")
 
-
 def words(series):
-   """
-   :return: série com todas as palavras presentes na série passada como parâmetro
+   """Cria série pandas com todas as palavras de series.
+
+   :series: série cujas palavras serão retornadas como elementos de uma nova série
+   :return: série com todas as palavras presentes em "series" passado como parâmetro
    """
    words_series = []
    for element in series:
@@ -88,17 +87,22 @@ def words(series):
    return pd.Series(words_series)
 
 def wordcloud(series, file):
+   """Cria wordcloud de série.
+   
+   :series: série pandas cujas palavras geraram o wordcloud
+   :file: diretrizes para salvar o wordcloud
+   """
    string = " ".join(word for word in words(series)) # une todas as palavras em uma única str
    wordcloud = WordCloud().generate(string)
    wordcloud.to_file(file)
 
 # palavras mais comuns no título dos álbuns
-#print("Palavras mais comuns - título álbuns:\n", words(albuns).value_counts().head(), sep="")
-#wordcloud(albuns, "img/Grupo 3/wordcloud_albuns.png")
+print("Palavras mais comuns - título álbuns:\n", words(albuns).value_counts().head(), sep="")
+wordcloud(albuns, "img/Grupo3/wordcloud_albuns.png")
 
 # palavras mais comuns no título das músicas
-#print("Palavras mais comuns - título músicas:\n", words(musics).value_counts().head(), sep="")
-#wordcloud(musics, "img/Grupo 3/wordcloud_musics.png")
+print("Palavras mais comuns - título músicas:\n", words(musics).value_counts().head(), sep="")
+wordcloud(musics, "img/Grupo3/wordcloud_musics.png")
 
 # palavras mais comuns na letra das músicas por álbum
 def words_freq(df, indice, coluna):
@@ -126,9 +130,14 @@ print(words_freq(df, "álbum", "letra"))
 # palavras mais comuns na letra das músicas de toda a discografia
 lyrics = df["letra"].unique()
 print("Palavras mais comuns - letra músicas:\n", words(lyrics).value_counts().head(), sep="")
-wordcloud(lyrics, "img/Grupo2/wordcloud_lyrics.png")
+wordcloud(lyrics, "img/Grupo3/wordcloud_lyrics.png")
 
 def nouns(series):
+   """Cria série com todos substantivos presentes nos elementos da série passada como parâmetro
+   
+   :series: série que terá seus elementos analizados
+   :return: série apenas com os substantivos presentes na série passada como parâmetro
+   """
    nouns = []
    for element in series:
       words = pos_tag(word_tokenize(str(element)))
@@ -138,10 +147,11 @@ def nouns(series):
    return nouns
 
 def theme(series1, series2):
-   """
-   checa se subst. da série 1 estão na série 2.
-   :series1: thematic series
-   :series2: 
+   """Checa se substantivos de series1 estão na series2.
+   
+   :series1: série pandas que origina os temas (substantivos)
+   :series2: série pandas onde os temas(substantivos) serão procurados
+   :return: série pandas com os temas (substantivos) da series1 presentes na series2, de acordo com a freq. 
    """
    theme = []
    for noum in nouns(series1):
