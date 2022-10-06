@@ -12,34 +12,41 @@ df = pd.read_csv("dataframe.csv", index_col=[0,1])
 albuns = df.index.unique(level="álbum")
 musics = df.index.unique(level="música")
 
-mais_ouvidas_idx = []
-menos_ouvidas_idx = []
-mais_longas_idx = []
-menos_longas_idx = []
-for album in albuns:
-   mais_ouvidas_idx += df[df["exibições"]!=0].loc[album].sort_values(by="exibições", ascending=False)["exibições"].head().index.tolist()
-   menos_ouvidas_idx += df[df["exibições"]!=0].loc[album].sort_values(by="exibições")["exibições"].head().index.tolist()
-   mais_longas_idx += df[df["duração"]!=0].loc[album].sort_values(by="duração", ascending=False)["duração"].head().index.tolist()
-   menos_longas_idx += df[df["duração"]!=0].loc[album].sort_values(by="duração").head().index.tolist()
-   
-   mais_ouvidas = df[df["exibições"]!=0].loc[album].sort_values(by="exibições", ascending=False).head()
-   menos_ouvidas = df[df["exibições"]!=0].loc[album].sort_values(by="exibições").head()
-   mais_e_menos_ouvidas = pd.concat([mais_ouvidas, menos_ouvidas], keys=["mais", "menos"])
-   grafico1 = sns.barplot(data=mais_e_menos_ouvidas.reset_index(), x="level_0", y="exibições", hue="música")
-   grafico1.figure.savefig(f"./img/Grupo1/Resposta_i/{album}.png")
-   grafico1.get_figure().clf()
 
-   mais_duracao = df[df["duração"]!=0].loc[album].sort_values(by="duração", ascending=False).head()
-   menos_duracao = df[df["duração"]!=0].loc[album].sort_values(by="duração").head()
-   mais_e_menos_duracao = pd.concat([mais_duracao, menos_duracao], keys=["mais", "menos"])
-   grafico2 = sns.barplot(data=mais_e_menos_duracao.reset_index(), x="level_0", y="duração", hue="música")
-   grafico2.figure.savefig(f"./img/Grupo1/Resposta_ii/{album}.png")
-   grafico2.get_figure().clf()
+def naoseionomedafuncao(df, indice_idx, grupo_idx, coluna, path, opcao):
+   """
+   :df: dataframe com indices individuais e multi-index
+   :indice_idx: nome do indice individual de cada elemento
+   :grupo_idx: indice coletivo dos elementos
+   :coluna: nome da coluna a ser analisada
+   :path: caminho da pasta aonde a img deve ser salva
+   :opcao: 0 para retornar os menores elementos e 1 para os maiores
+   :return: retorna um df com os elementos de maiores e menores valores por grupo e salva suas visualizações no path
+   """
+   mais_idx = []
+   menos_idx = []
+   grupos = df.index.unique(level=grupo_idx)
+   for grupo in grupos:
+      mais = df[df[coluna]>0].loc[grupo].sort_values(by=coluna, ascending=False).head()
+      menos = df[df[coluna]>0].loc[grupo].sort_values(by=coluna).head()
+      mais_idx += mais[coluna].index.tolist()
+      menos_idx += menos[coluna].index.tolist()
+      mais_e_menos = pd.concat([mais, menos], keys=["mais", "menos"])
 
-print(df[df.index.isin(mais_ouvidas_idx, level="música")])
-print(df[df.index.isin(menos_ouvidas_idx, level="música")])
-print(df[df.index.isin(mais_longas_idx, level="música")])
-print(df[df.index.isin(menos_longas_idx, level="música")])
+      grafico = sns.barplot(data=mais_e_menos.reset_index(), x="level_0", y=coluna, hue=indice_idx)
+      grafico.figure.savefig(f"{path}/{grupo}.png")
+      grafico.get_figure().clf()
+
+   if opcao == 0:
+      return df[df.index.isin(menos_idx, level=indice_idx)]
+   else:
+      return df[df.index.isin(mais_idx, level=indice_idx)]
+
+print(naoseionomedafuncao(df, "música", "álbum", "exibições", "./img/Grupo1/Resposta_i", 0))
+print(naoseionomedafuncao(df, "música", "álbum", "exibições", "./img/Grupo1/Resposta_i", 1))
+print(naoseionomedafuncao(df, "música", "álbum", "duração", "./img/Grupo1/Resposta_ii", 0))
+print(naoseionomedafuncao(df, "música", "álbum", "duração", "./img/Grupo1/Resposta_ii", 1))
+
 
 mais_ouvidas = df[df["exibições"]!=0].sort_values(by="exibições", ascending=False)["exibições"].head()
 menos_ouvidas = df[df["exibições"]!=0].sort_values(by="exibições")["exibições"].head()
@@ -69,6 +76,7 @@ grafico.get_figure().clf()
 popularidade = sns.jointplot(data=df[df["duração"]>0], x="duração", y="exibições", kind="reg")
 popularidade.figure.savefig("./img/Grupo1/Resposta_vi/popularidade.png")
 
+
 def words(series):
    """
    :return: série com todas as palavras presentes na série passada como parâmetro
@@ -85,31 +93,40 @@ def wordcloud(series, file):
    wordcloud.to_file(file)
 
 # palavras mais comuns no título dos álbuns
-print("Palavras mais comuns - título álbuns:\n", words(albuns).value_counts().head(), sep="")
-wordcloud(albuns, "img/Grupo 3/wordcloud_albuns.png")
+#print("Palavras mais comuns - título álbuns:\n", words(albuns).value_counts().head(), sep="")
+#wordcloud(albuns, "img/Grupo 3/wordcloud_albuns.png")
 
 # palavras mais comuns no título das músicas
-print("Palavras mais comuns - título músicas:\n", words(musics).value_counts().head(), sep="")
-wordcloud(musics, "img/Grupo 3/wordcloud_musics.png")
+#print("Palavras mais comuns - título músicas:\n", words(musics).value_counts().head(), sep="")
+#wordcloud(musics, "img/Grupo 3/wordcloud_musics.png")
 
 # palavras mais comuns na letra das músicas por álbum
-words_dfs = []
-for album in albuns:
-   lyrics = df.loc[album]["letra"].unique()
+def words_freq(df, indice, coluna):
+   """
+   :df: dataframe
+   :indice: nome do indice pelo qual as frequenciais devem ser agrupadas
+   :coluna: nome da coluna que contem as strings com as palavras a serem analisadas
+   :return: dataframe com as freq das palavras mais frequentes da coluna por indice
+   """
+   indices = df.index.unique(level=indice)
+   words_df = []
+   for album in indices:
+      lyrics = df.loc[album][coluna].unique()
 
-   words_lyrics = words(lyrics)
-   words_freq = words_lyrics.value_counts().head().values
-   words_idx = words_lyrics.value_counts().head().index.to_list()
-   multi_idx = pd.MultiIndex.from_tuples([(album, x) for x in words_idx], names=["album", "word"])
-   words_dfs.append(pd.DataFrame(data=words_freq, index=multi_idx, columns=["freq"]))
+      words_lyrics = words(lyrics)
+      words_freq = words_lyrics.value_counts().head().values
+      words_idx = words_lyrics.value_counts().head().index.to_list()
+      multi_idx = pd.MultiIndex.from_tuples([(album, x) for x in words_idx], names=[indice, "word"])
+      words_df.append(pd.DataFrame(data=words_freq, index=multi_idx, columns=["freq"]))
 
-word_df = pd.concat(words_dfs)
-print(word_df)
+   return pd.concat(words_df)
+
+print(words_freq(df, "álbum", "letra"))
 
 # palavras mais comuns na letra das músicas de toda a discografia
 lyrics = df["letra"].unique()
 print("Palavras mais comuns - letra músicas:\n", words(lyrics).value_counts().head(), sep="")
-wordcloud(lyrics, "img/Grupo 3/wordcloud_lyrics.png")
+wordcloud(lyrics, "img/Grupo2/wordcloud_lyrics.png")
 
 def nouns(series):
    nouns = []
