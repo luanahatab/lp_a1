@@ -13,7 +13,7 @@ albuns = df.index.unique(level="álbum")
 musics = df.index.unique(level="música")
 
 
-def naoseionomedafuncao(df, indice_idx, grupo_idx, coluna, path, opcao):
+def maiores_menores_idx(df, indice_idx, grupo_idx, coluna, path, opcao):
    """
    :df: dataframe com indices individuais e multi-index
    :indice_idx: nome do indice individual de cada elemento
@@ -42,10 +42,10 @@ def naoseionomedafuncao(df, indice_idx, grupo_idx, coluna, path, opcao):
    else:
       return df[df.index.isin(mais_idx, level=indice_idx)]
 
-print(naoseionomedafuncao(df, "música", "álbum", "exibições", "./img/Grupo1/Resposta_i", 0))
-print(naoseionomedafuncao(df, "música", "álbum", "exibições", "./img/Grupo1/Resposta_i", 1))
-print(naoseionomedafuncao(df, "música", "álbum", "duração", "./img/Grupo1/Resposta_ii", 0))
-print(naoseionomedafuncao(df, "música", "álbum", "duração", "./img/Grupo1/Resposta_ii", 1))
+print(maiores_menores_idx(df, "música", "álbum", "exibições", "./img/Grupo1/Resposta_i", 0))
+print(maiores_menores_idx(df, "música", "álbum", "exibições", "./img/Grupo1/Resposta_i", 1))
+print(maiores_menores_idx(df, "música", "álbum", "duração", "./img/Grupo1/Resposta_ii", 0))
+print(maiores_menores_idx(df, "música", "álbum", "duração", "./img/Grupo1/Resposta_ii", 1))
 
 
 mais_ouvidas = df[df["exibições"]!=0].sort_values(by="exibições", ascending=False)["exibições"].head()
