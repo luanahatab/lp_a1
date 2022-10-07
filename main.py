@@ -69,7 +69,13 @@ print("Tema álbuns:\n", f.theme(albuns, lyrics).value_counts().head(), sep="")
 print("Tema músicas:\n", f.theme(musics, lyrics).value_counts().head(), sep="")
 
 # Qual é a quantidade média de palavras por música?
+print('-'*100)
 print("A média de palavras por música é:", f.words_avg(lyrics))
+print('-'*100)
 
 #Quais são os álbuns com maior e menor média de duração das músicas?
-print(type(f.duracao_album(df)))
+print(f.duracao_album(df))
+
+#A quantidade de palavra está necessariamente relacionada ao tempo de duração da música? Retorne True se sim e False se não
+print(f.palavras_duracao(df,lyrics,albuns))
+

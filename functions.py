@@ -132,3 +132,39 @@ def duracao_album(df):
    df: dataframe que possui como um dos índices os nomes das músicas e uma de suas colunas é a duração da música
    """
    return (df[df["duração"]>0].groupby("álbum").mean().sort_values(by="duração")["duração"])
+
+def palavras_duracao(df, lyrics, albuns):
+   
+   duracao_list=[]
+   for album in albuns:
+      duracao = df.loc[album]['duração'].unique()
+      duracao_list.append(duracao)
+
+   duracao_musica = []
+   for i in range(0,len(duracao_list)):
+      for k in range(0,len(duracao_list[i])):
+         if duracao_list[i][k] != 0:
+            duracao_musica.append(duracao_list[i][k])
+         else: 
+            continue
+   
+   palavras_musica = []
+   for i in range(0,len(lyrics)):
+      qnt_palavras = len(str(lyrics[i]).split())
+      if qnt_palavras >2:
+         palavras_musica.append(qnt_palavras)
+      else:
+         continue
+      
+   musica_palavra_max = df[df['letra'] == lyrics[palavras_musica.index(max(palavras_musica))]]
+   
+   musica_duracao_max = df[df['duração'] == max(duracao_musica)]
+
+   musica_palavra_min = df[df['letra'] == lyrics[palavras_musica.index(min(palavras_musica))]]
+   
+   musica_duracao_min = df[df['duração'] == min(duracao_musica)]
+
+   if musica_duracao_max.equals(musica_palavra_max) or musica_duracao_min.equals(musica_palavra_min):
+      return True
+   else:
+      return False
