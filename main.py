@@ -46,10 +46,12 @@ popularidade.figure.savefig("./img/Grupo1/Resposta_vi/popularidade.png")
 
 # palavras mais comuns no título dos álbuns
 print("Palavras mais comuns - título álbuns:\n", f.words(albuns).value_counts().head(), sep="")
+print("Palavras mais comuns filtradas - título álbuns:\n", f.words_n_stopwords(albuns).value_counts().head(), sep="")
 f.wordcloud(albuns, "img/Grupo3/wordcloud_albuns.png")
 
 # palavras mais comuns no título das músicas
 print("Palavras mais comuns - título músicas:\n", f.words(musics).value_counts().head(), sep="")
+print("Palavras mais comuns filtradas - título músicas:\n", f.words_n_stopwords(musics).value_counts().head(), sep="")
 f.wordcloud(musics, "img/Grupo3/wordcloud_musics.png")
 
 print(f.words_freq(df, "álbum", "letra"))
@@ -57,6 +59,7 @@ print(f.words_freq(df, "álbum", "letra"))
 # palavras mais comuns na letra das músicas de toda a discografia
 lyrics = pd.Series(df["letra"].unique())
 print("Palavras mais comuns - letra músicas:\n", f.words(lyrics).value_counts().head(), sep="")
+print("Palavras mais comuns filtradas - letra músicas:\n", f.words_n_stopwords(lyrics).value_counts().head(), sep="")
 f.wordcloud(lyrics, "img/Grupo3/wordcloud_lyrics.png")
 
 # título de álbum é tema recorrente nas letras

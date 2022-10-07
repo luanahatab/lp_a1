@@ -6,6 +6,8 @@ from nltk import pos_tag, word_tokenize
 nltk.download('averaged_perceptron_tagger')
 nltk.download('punkt')
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+nltk.download("stopwords")
+from nltk.corpus import stopwords
 
 def maiores_menores_idx(df, indice_idx, grupo_idx, coluna, path, opcao):
    """
@@ -46,6 +48,15 @@ def words(series):
       for word in str(element).split():
          words_series.append(word)
    return pd.Series(words_series)
+   
+def words_n_stopwords(series):
+   """Cria série pandas com as palavras de series que não são stopwords (i.e. pronomes e artigos).
+   :series: série cujas palavras serão filtradas e retornadas como elementos de uma nova série
+   :return: série com as palavras que não são stopwords
+   """
+   stop_words = set(stopwords.words("english"))
+   n_stopwords = [word for word in words(series) if word.casefold() not in stop_words]
+   return pd.Series(n_stopwords)
 
 def wordcloud(series, file):
    """Cria wordcloud de série.
