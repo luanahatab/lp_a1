@@ -7,10 +7,6 @@ nltk.download('averaged_perceptron_tagger')
 nltk.download('punkt')
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
-df = pd.read_csv("dataframe.csv", index_col=[0,1])
-albuns = df.index.unique(level="álbum")
-musics = df.index.unique(level="música")
-
 def maiores_menores_idx(df, indice_idx, grupo_idx, coluna, path, opcao):
    """
    :df: dataframe com indices individuais e multi-index
@@ -40,7 +36,6 @@ def maiores_menores_idx(df, indice_idx, grupo_idx, coluna, path, opcao):
    else:
       return df[df.index.isin(mais_idx, level=indice_idx)]
 
-
 def words(series):
    """Cria série pandas com todas as palavras de series.
    :series: série cujas palavras serão retornadas como elementos de uma nova série
@@ -54,14 +49,13 @@ def words(series):
 
 def wordcloud(series, file):
    """Cria wordcloud de série.
-   
+
    :series: série pandas cujas palavras geraram o wordcloud
    :file: diretrizes para salvar o wordcloud
    """
    string = " ".join(word for word in words(series)) # une todas as palavras em uma única str
    wordcloud = WordCloud().generate(string)
    wordcloud.to_file(file)
-
 
 # palavras mais comuns na letra das músicas por álbum
 def words_freq(df, indice, coluna):
@@ -84,10 +78,9 @@ def words_freq(df, indice, coluna):
 
    return pd.concat(words_df)
 
-
 def nouns(series):
    """Cria série com todos substantivos presentes nos elementos da série passada como parâmetro
-   
+
    :series: série que terá seus elementos analizados
    :return: série apenas com os substantivos presentes na série passada como parâmetro
    """
@@ -101,10 +94,10 @@ def nouns(series):
 
 def theme(series1, series2):
    """Checa se substantivos de series1 estão na series2.
-   
+
    :series1: série pandas que origina os temas (substantivos)
    :series2: série pandas onde os temas(substantivos) serão procurados
-   :return: série pandas com os temas (substantivos) da series1 presentes na series2, de acordo com a freq. 
+   :return: série pandas com os temas (substantivos) da series1 presentes na series2, de acordo com a freq.
    """
    theme = []
    for noum in nouns(series1):
@@ -114,29 +107,14 @@ def theme(series1, series2):
    theme = pd.Series(theme)
    return theme
 
-
 #Perguntas criadas:
-# Qual é a quantidade média de palavras por música? 
+# Qual é a quantidade média de palavras por música?
 
-def media_palavras_musicas(lyrics):
-   """Calcula a média de palavras por música
-   lyrics: lista com as letras das músicas
+def media(series):
+   """Calcula média de palavras entre os elementos de uma série
+   :series: série com as letras das músicas
    """
-   palavras_musica = []
-   for i in range(0,len(lyrics)):
-      qnt_palavras = len(str(lyrics[i]).split())
-      if qnt_palavras >2:
-         palavras_musica.append(qnt_palavras)
-      else:
-         palavras_musica.append(0)
-
-   soma_palavras = sum(palavras_musica)
-   if 0 in palavras_musica:
-      media_palavras = soma_palavras/(len(musics)-1)
-   elif 0 not in palavras_musica:
-      media_palavras = soma_palavras/len(musics)
-   
-   return round(media_palavras,2)
+   return round(words(series).count()/series.count(), 2)
 
 def duracao_album(df):
    """Retorna uma série com o nome das músicas e suas durações em ordem decrescente
@@ -145,72 +123,11 @@ def duracao_album(df):
    return (df[df["duração"]>0].groupby("álbum").mean().sort_values(by="duração")["duração"])
 
 
-if __name__ == "__main__":
-    
-    print(maiores_menores_idx(df, "música", "álbum", "exibições", "./img/Grupo1/Resposta_i", 0))
-    print(maiores_menores_idx(df, "música", "álbum", "exibições", "./img/Grupo1/Resposta_i", 1))
-    print(maiores_menores_idx(df, "música", "álbum", "duração", "./img/Grupo1/Resposta_ii", 0))
-    print(maiores_menores_idx(df, "música", "álbum", "duração", "./img/Grupo1/Resposta_ii", 1))
-    mais_ouvidas = df[df["exibições"]!=0].sort_values(by="exibições", ascending=False)["exibições"].head()
-    menos_ouvidas = df[df["exibições"]!=0].sort_values(by="exibições")["exibições"].head()
-    grafico1 = sns.barplot(data=mais_ouvidas.reset_index(), x="exibições", y="música", hue="música")
-    grafico1.figure.savefig("./img/Grupo1/Resposta_iii/mais_ouvidas.png")
-    grafico1.get_figure().clf()
-    grafico2 = sns.barplot(data=menos_ouvidas.reset_index(), x="exibições", y="música", hue="música")
-    grafico2.figure.savefig("./img/Grupo1/Resposta_iii/menos_ouvidas.png")
-    grafico2.get_figure().clf()
-
-    mais_longas = df[df["duração"]!=0].sort_values(by="duração", ascending=False)["duração"].head()
-    mais_curtas = df[df["duração"]!=0].sort_values(by="duração")["duração"].head()
-    grafico1 = sns.barplot(data=mais_longas.reset_index(), x="duração", y="música", hue="música")
-    grafico1.figure.savefig("./img/Grupo1/Resposta_iv/mais_longas.png")
-    grafico1.get_figure().clf()
-    grafico2 = sns.barplot(data=mais_curtas.reset_index(), x="duração", y="música", hue="música")
-    grafico2.figure.savefig("./img/Grupo1/Resposta_iv/mais_curtas.png")
-    grafico2.get_figure().clf()
-
-    premiados = df.groupby("álbum").sum().sort_values(by=["prêmios", "indicações"], ascending=[False, False]).head()
-    grafico = premiados.reset_index().plot(x="álbum", y=["prêmios", "indicações"], kind="bar")
-    plt.xticks(rotation='horizontal')
-    plt.xticks(rotation=12)
-    grafico.figure.savefig("./img/Grupo1/Resposta_v/premiados.png")
-    grafico.get_figure().clf()
-
-    popularidade = sns.jointplot(data=df[df["duração"]>0].reset_index(), x="duração", y="exibições", kind="reg")
-    popularidade.figure.savefig("./img/Grupo1/Resposta_vi/popularidade.png")
-    
-    # palavras mais comuns no título dos álbuns
-    print("Palavras mais comuns - título álbuns:\n", words(albuns).value_counts().head(), sep="")
-    wordcloud(albuns, "img/Grupo3/wordcloud_albuns.png")
-
-    # palavras mais comuns no título das músicas
-    print("Palavras mais comuns - título músicas:\n", words(musics).value_counts().head(), sep="")
-    wordcloud(musics, "img/Grupo3/wordcloud_musics.png")
-    
-    print(words_freq(df, "álbum", "letra"))
-
-    # palavras mais comuns na letra das músicas de toda a discografia
-    lyrics = df["letra"].unique()
-    print("Palavras mais comuns - letra músicas:\n", words(lyrics).value_counts().head(), sep="")
-    wordcloud(lyrics, "img/Grupo3/wordcloud_lyrics.png")
-    
-    # título de álbum é tema recorrente nas letras
-    print("Tema álbuns:\n", theme(albuns, lyrics).value_counts().head(), sep="")
-
-    # título de música é tema recorrente nas letras
-    print("Tema músicas:\n", theme(musics, lyrics).value_counts().head(), sep="")
-    
-    # Qual é a quantidade média de palavras por música? 
-    print(f'A média de palavras por música é: {media_palavras_musicas(lyrics)}')
-    
-    #Quais são os álbuns com maior e menor média de duração das músicas?
-    print(type(duracao_album(df)))
-    
     #III)
     # duracao_list=[]
     # for album in albuns:
     #    duracao = df.loc[album]['duração'].unique()
     #    duracao_list.append(duracao)
-    
-    
+
+
     #quando for comparar usar aql df do lyrics e head
