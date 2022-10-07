@@ -110,7 +110,7 @@ def theme(series1, series2):
 #Perguntas criadas:
 # Qual é a quantidade média de palavras por música?
 
-def media(series):
+def words_avg(series):
    """Calcula média de palavras entre os elementos de uma série
    :series: série com as letras das músicas
    """
@@ -121,13 +121,3 @@ def duracao_album(df):
    df: dataframe que possui como um dos índices os nomes das músicas e uma de suas colunas é a duração da música
    """
    return (df[df["duração"]>0].groupby("álbum").mean().sort_values(by="duração")["duração"])
-
-
-    #III)
-    # duracao_list=[]
-    # for album in albuns:
-    #    duracao = df.loc[album]['duração'].unique()
-    #    duracao_list.append(duracao)
-
-
-    #quando for comparar usar aql df do lyrics e head

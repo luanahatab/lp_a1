@@ -65,8 +65,8 @@ print("Tema álbuns:\n", f.theme(albuns, lyrics).value_counts().head(), sep="")
 # título de música é tema recorrente nas letras
 print("Tema músicas:\n", f.theme(musics, lyrics).value_counts().head(), sep="")
 
-# Qual é a quantidade média de palavras por música? 
-print(f'A média de palavras por música é: {f.media_palavras_musicas(lyrics)}')
+# Qual é a quantidade média de palavras por música?
+print("A média de palavras por música é:", f.words_avg(lyrics))
 
 #Quais são os álbuns com maior e menor média de duração das músicas?
 print(type(f.duracao_album(df)))
