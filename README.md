@@ -1,4 +1,4 @@
-# Trabalho A1 - Queens
+# Trabalho A1 - Queen
 
 [Documentação em pdf](https://drive.google.com/file/d/1OnnlZoseUbZCGAAtktUhbD7lCFPu0VUJ/view?usp=sharing)
 
