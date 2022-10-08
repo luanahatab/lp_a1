@@ -15,6 +15,14 @@ Arquivo que utiliza as funções criadas para printar as respostas e gerar as vi
 ## [img](img)
 Pasta com as visualizações das respostas, tanto do grupo1 quanto do grupo2, divido em uma pasta para cada resposta e, no caso das perguntas por álbum, cada img da resposta tem o nome do seu respectivo álbum.
 
+## [docs](docs)
+
+Pasta que foi utilizada para gerar a documentação em pdf e html
+
+## [Relatório](relatorio.pdf)
+
+Perguntas e respostas
+
 ## Bicliotecas utilizadas:
 - ``Pandas``
 - ``Seaborn``
