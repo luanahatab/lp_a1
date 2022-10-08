@@ -5,7 +5,7 @@
 ## [get_data](get_data.py)
 Código que coleta os dados das músicas através das bibliotecas ``BeautifulSoup`` e ``requests`` e gera um arquivo csv referente ao dataframe
 
-## [functions](functions.py).
+## [functions](functions.py)
 
 Código com as funções a serem usadas para responder as perguntas.
 
