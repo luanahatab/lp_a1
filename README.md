@@ -21,7 +21,7 @@ Pasta que foi utilizada para gerar a documentação em pdf e html
 
 ## [Relatório](relatorio.pdf)
 
-Perguntas e respostas
+Relatório em pdf com as questões e as respostas geradas pelos códigos.
 
 ## Bicliotecas utilizadas:
 - ``Pandas``
