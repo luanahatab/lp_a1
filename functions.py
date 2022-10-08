@@ -51,15 +51,9 @@ def words(series: pd.Series) -> pd.Series:
 
    :param series: série cujas palavras serão retornadas como elementos de uma nova série
    :type series: pd.Series
-   :return: _description_
-   :rtype: pd.Series
-   """   """Cria série pandas com todas as palavras de series
-
-   :param series: série cujas palavras serão retornadas como elementos de uma nova série
-   :type series: _type_
    :return: série com todas as palavras presentes em "series" passado como parâmetro
    :rtype: pd.Series
-   """   
+   """ 
    words_series = []
    for element in series:
       for word in str(element).split():
