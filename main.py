@@ -76,4 +76,3 @@ print(f.duracao_album(df))
 
 #A quantidade de palavra está necessariamente relacionada ao tempo de duração da música? Retorne True se sim e False se não
 print(f.palavras_duracao(df,lyrics,albuns))
-
