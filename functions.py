@@ -9,16 +9,24 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 nltk.download("stopwords")
 from nltk.corpus import stopwords
 
-def maiores_menores_idx(df, indice_idx, grupo_idx, coluna, path, opcao):
-   """
-   :df: dataframe com indices individuais e multi-index
-   :indice_idx: nome do indice individual de cada elemento
-   :grupo_idx: indice coletivo dos elementos
-   :coluna: nome da coluna a ser analisada
-   :path: caminho da pasta aonde a img deve ser salva
-   :opcao: 0 para retornar os menores elementos e 1 para os maiores
+def maiores_menores_idx(df:pd.DataFrame, indice_idx: str, grupo_idx:str, coluna:str, path:str, opcao:int) -> pd.DataFrame:
+   """Monta um DataFrame com os elementos de maiores e menores valores por grupo e salva suas visualizações no path 
+
+   :param df: dataframe com indices individuais e multi-index
+   :type df: pd.DataFrame
+   :param indice_idx: nome do indice individual de cada elemento
+   :type indice_idx: str
+   :param grupo_idx: indice coletivo dos elementos
+   :type grupo_idx: str
+   :param coluna: nome da coluna a ser analisada
+   :type coluna: str
+   :param path: caminho da pasta aonde a img deve ser salva
+   :type path: str
+   :param opcao: 0 para retornar os menores elementos e 1 para os maiores
+   :type opcao: int
    :return: retorna um df com os elementos de maiores e menores valores por grupo e salva suas visualizações no path
-   """
+   :rtype: pd.DataFrame
+   """ 
    mais_idx = []
    menos_idx = []
    grupos = df.index.unique(level=grupo_idx)
@@ -38,44 +46,63 @@ def maiores_menores_idx(df, indice_idx, grupo_idx, coluna, path, opcao):
    else:
       return df[df.index.isin(mais_idx, level=indice_idx)]
 
-def words(series):
-   """Cria série pandas com todas as palavras de series.
-   :series: série cujas palavras serão retornadas como elementos de uma nova série
+def words(series: pd.Series) -> pd.Series:
+   """Cria série pandas com todas as palavras de series
+
+   :param series: série cujas palavras serão retornadas como elementos de uma nova série
+   :type series: pd.Series
+   :return: _description_
+   :rtype: pd.Series
+   """   """Cria série pandas com todas as palavras de series
+
+   :param series: série cujas palavras serão retornadas como elementos de uma nova série
+   :type series: _type_
    :return: série com todas as palavras presentes em "series" passado como parâmetro
-   """
+   :rtype: pd.Series
+   """   
    words_series = []
    for element in series:
       for word in str(element).split():
          words_series.append(word)
    return pd.Series(words_series)
    
-def words_n_stopwords(series):
-   """Cria série pandas com as palavras de series que não são stopwords (i.e. pronomes e artigos).
-   :series: série cujas palavras serão filtradas e retornadas como elementos de uma nova série
+def words_n_stopwords(series: pd.Series) -> pd.Series:
+   """Cria série pandas com as palavras de series que não são stopwords (i.e. pronomes e artigos)
+
+   :param series: série cujas palavras serão filtradas e retornadas como elementos de uma nova série
+   :type series: pd.Index
    :return: série com as palavras que não são stopwords
-   """
+   :rtype: pd.Series
+   """   
    stop_words = set(stopwords.words("english"))
    n_stopwords = [word for word in words(series) if word.casefold() not in stop_words]
    return pd.Series(n_stopwords)
 
-def wordcloud(series, file):
-   """Cria wordcloud de série.
+def wordcloud(series: pd.Series, file: str):
+   """Cria wordcloud de série
 
-   :series: série pandas cujas palavras geraram o wordcloud
-   :file: diretrizes para salvar o wordcloud
-   """
+   :param series: série pandas cujas palavras geraram o wordcloud
+   :type series: pd.Series
+   :param file: diretrizes para salvar o wordcloud
+   :type file: str
+   """   
    string = " ".join(word for word in words(series)) # une todas as palavras em uma única str
    wordcloud = WordCloud().generate(string)
    wordcloud.to_file(file)
 
 # palavras mais comuns na letra das músicas por álbum
-def words_freq(df, indice, coluna):
-   """
-   :df: dataframe
-   :indice: nome do indice pelo qual as frequenciais devem ser agrupadas
-   :coluna: nome da coluna que contem as strings com as palavras a serem analisadas
-   :return: dataframe com as freq das palavras mais frequentes da coluna por indice
-   """
+def words_freq(df: pd.DataFrame, indice:str, coluna:str) -> pd.DataFrame:
+   """função retorna um dataframe com as frequencias das palavras mais freqentes da coluna por índice
+
+   :param df: dataframe com todas informações
+   :type df: pd.DataFrame
+   :param indice: nome do indice pelo qual as frequenciais devem ser agrupadas
+   :type indice: str
+   :param coluna: nome da coluna que contem as strings com as palavras a serem analisadas
+   :type coluna: str
+   :return: dataframe com as frequencias das palavras mais frequentes da coluna por indice
+   :rtype: pd.DataFrame
+   """  
    indices = df.index.unique(level=indice)
    words_df = []
    for album in indices:
@@ -89,12 +116,14 @@ def words_freq(df, indice, coluna):
 
    return pd.concat(words_df)
 
-def nouns(series):
+def nouns(series: pd.Series) -> pd.Series:
    """Cria série com todos substantivos presentes nos elementos da série passada como parâmetro
 
-   :series: série que terá seus elementos analizados
+   :param series: série que terá seus elementos analisados
+   :type series: pd.Series
    :return: série apenas com os substantivos presentes na série passada como parâmetro
-   """
+   :rtype: pd.Series
+   """   
    nouns = []
    for element in series:
       words = pos_tag(word_tokenize(str(element)))
@@ -103,13 +132,16 @@ def nouns(series):
                nouns.append(word)
    return nouns
 
-def theme(series1, series2):
-   """Checa se substantivos de series1 estão na series2.
+def theme(series1: pd.Series, series2: pd.Series) -> pd.Series:
+   """Checa se os substantivos de series1 estão na series2
 
-   :series1: série pandas que origina os temas (substantivos)
-   :series2: série pandas onde os temas(substantivos) serão procurados
-   :return: série pandas com os temas (substantivos) da series1 presentes na series2, de acordo com a freq.
-   """
+   :param series1: série pandas que origina os temas (substantivos)
+   :type series1: pd.Series
+   :param series2: série pandas onde os temas(substantivos) serão procurados
+   :type series2: pd.Series
+   :return: série pandas com os temas (substantivos) da series1 presentes na series2, de acordo com a frequencia
+   :rtype: pd.Series
+   """   
    theme = []
    for noum in nouns(series1):
       for word in words(series2):
@@ -121,20 +153,38 @@ def theme(series1, series2):
 #Perguntas criadas:
 # Qual é a quantidade média de palavras por música?
 
-def words_avg(series):
+def words_avg(series: pd.Series) -> float:
    """Calcula média de palavras entre os elementos de uma série
-   :series: série com as letras das músicas
-   """
+
+   :param series: série com as letras das músicas
+   :type series: pd.Series
+   :return: média de palavras por música
+   :rtype: float
+   """   
    return round(words(series).count()/series.count(), 2)
 
-def duracao_album(df):
+def duracao_album(df: pd.DataFrame) -> pd.Series:
    """Retorna uma série com o nome das músicas e suas durações em ordem decrescente
-   df: dataframe que possui como um dos índices os nomes das músicas e uma de suas colunas é a duração da música
-   """
+
+   :param df: dataframe que possui como um dos índices os nomes das músicas e uma de suas colunas é a duração da música
+   :type df: pd.DataFrame
+   :return: série com o nome das músicas e suas durações em ordem decrescente
+   :rtype: pd.Series
+   """  
    return (df[df["duração"]>0].groupby("álbum").mean().sort_values(by="duração")["duração"])
 
-def palavras_duracao(df, lyrics, albuns):
-   
+def palavras_duracao(df: pd.DataFrame, lyrics: pd.Series, albuns:pd.Series) -> bool:
+   """Verifica se a quantidade de palavras esta relacionada com o tempo da música
+
+   :param df: dataframe com todas informações
+   :type df: pd.DataFrame
+   :param lyrics: série com as letras das músicas
+   :type lyrics: pd.Series
+   :param albuns: serie com o nome dos álbuns
+   :type albuns: pd.Series
+   :return: retorna verdadeiro caso a quantidade de palavras esteja relacionada com a duração e falso caso não esteja 
+   :rtype: bool
+   """   
    duracao_list=[]
    for album in albuns:
       duracao = df.loc[album]['duração'].unique()
